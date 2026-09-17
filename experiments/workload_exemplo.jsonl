@@ -1,0 +1,8 @@
+{"id": 1, "op": "put", "key": 91, "value": "abc"}
+{"id": 2, "op": "get", "key": 91}
+{"id": 3, "op": "put", "key": 50, "value": "valor cinquenta"}
+{"id": 4, "op": "scan", "start": 0, "end": 100}
+{"id": 5, "op": "delete", "key": 91}
+{"id": 6, "op": "get", "key": 91}
+{"id": 7, "op": "get", "key": 12345}
+{"id": 8, "op": "delete", "key": 999}
