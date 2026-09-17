@@ -39,6 +39,15 @@ escreve em stdout — útil para testar rapidamente:
 echo '{"id": 1, "op": "put", "key": 91, "value": "abc"}' | ./engine run --data-dir /tmp/teste
 ```
 
+## Docker
+
+Há um `Dockerfile` de referência seguindo a interface descrita no enunciado
+(binário final em `/engine`). **Ainda não foi validado** (build/run reais)
+porque não há Docker disponível no ambiente onde foi escrito — a disciplina
+também ainda não confirmou se essa será a modalidade oficial de avaliação.
+Antes de depender dele, rodar `docker build -t engine . && docker run
+--rm -v ./data:/data engine init --data-dir /data` para confirmar.
+
 ## Estrutura do repositório
 
 ```
@@ -46,7 +55,7 @@ include/engine.hpp   interface do storage engine
 src/engine.cpp        implementação (log append-only + índice em memória)
 src/main.cpp           CLI (init/run/verify/describe) + parsing de JSON Lines
 third_party/           dependências vendorizadas (nlohmann/json, header-only)
-experiments/            testes manuais e workloads de exemplo
+experiments/            testes manuais, benchmark e workloads de exemplo
 docs/                    documentação de design por entrega
 ```
 
