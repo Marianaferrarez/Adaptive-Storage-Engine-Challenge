@@ -29,6 +29,20 @@ Log estruturado (append-only log) com índice em memória, no estilo Bitcask.
 
 ## Trade-offs conhecidos (a documentar/medir experimentalmente)
 
+- **Sem `fsync` por operação.** `PUT`/`DELETE` escrevem via `pwrite`, que
+  entrega os bytes ao page cache do kernel, mas não força a ida ao disco
+  físico a cada chamada. Medimos experimentalmente (`experiments/benchmark.cpp`)
+  que fazer `fsync` a cada `PUT` derruba o throughput de ~1000 para ~145
+  ops/s (WSL2/ext4, valores de 100 bytes). Como o enunciado explicita que
+  "não será exigida uma implementação ACID completa" (durabilidade é uma
+  propriedade ACID), e o cenário de "crash" avaliado é a morte do processo
+  (não um desligamento/reboot da máquina), os dados já escritos permanecem
+  seguros no page cache do SO mesmo sem `fsync` — e nossa recuperação por
+  CRC32 ao reabrir cobre o caso de um registro parcialmente escrito no
+  meio de uma chamada `pwrite`. Fazemos um `fsync` único no destrutor, para
+  garantir durabilidade em encerramento normal. Se a avaliação vier a
+  incluir crash por perda de energia/reboot, essa decisão precisa ser
+  revisitada (ex: fsync a cada N operações, ou no fechamento do batch).
 - O arquivo cresce indefinidamente com updates/deletes repetidos na mesma
   chave — vai precisar de compactação (merge dos registros válidos num novo
   arquivo, descartando tombstones e versões antigas) antes da Entrega 3, e
