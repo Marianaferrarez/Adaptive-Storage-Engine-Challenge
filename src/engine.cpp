@@ -130,6 +130,7 @@ Engine::Engine(const std::string& data_dir) : data_dir_(data_dir) {
 
 Engine::~Engine() {
     if (log_fd_ >= 0) {
+        fsync(log_fd_);
         close(log_fd_);
     }
 }
@@ -198,7 +199,13 @@ void Engine::put(uint64_t key, const std::string& value) {
 
     off_t offset = lseek(log_fd_, 0, SEEK_END);
     pwrite_all(log_fd_, record.data(), record.size(), offset);
-    fsync(log_fd_);
+    // Sem fsync aqui de propósito: o write() já entrega os bytes ao page
+    // cache do kernel, que sobrevive à morte do processo (só um
+    // desligamento/reboot do SO perderia isso). Como a disciplina não exige
+    // ACID completo (durabilidade contra falha de energia), trocamos essa
+    // garantia mais forte por throughput bem maior — fsync por escrita
+    // reduziu o PUT de ~1000 para ~145 ops/s no benchmark. fsync acontece
+    // uma vez no destrutor, no encerramento normal.
 
     index_[key] = IndexEntry{static_cast<uint64_t>(offset)};
 }
@@ -251,7 +258,6 @@ bool Engine::remove(uint64_t key) {
     std::vector<uint8_t> record = build_record(kFlagDelete, key, "");
     off_t offset = lseek(log_fd_, 0, SEEK_END);
     pwrite_all(log_fd_, record.data(), record.size(), offset);
-    fsync(log_fd_);
 
     index_.erase(it);
     return true;
