@@ -26,7 +26,7 @@ std::unordered_map<std::string, std::string> parse_flags(int argc, char** argv, 
 }
 
 std::string require_flag(const std::unordered_map<std::string, std::string>& flags,
-                          const std::string& name) {
+                         const std::string& name) {
     auto it = flags.find(name);
     if (it == flags.end()) {
         throw std::runtime_error("faltando flag obrigatória --" + name);
@@ -36,8 +36,7 @@ std::string require_flag(const std::unordered_map<std::string, std::string>& fla
 
 // Constrói a resposta para uma única operação do workload. Erros de
 // validação (campo faltando, tipo errado, op desconhecida) viram
-// {"status": "error"} em vez de derrubar o processo inteiro: um workload
-// com uma linha ruim não pode interromper o processamento das demais.
+// {"status": "error"} em vez de derrubar o processo inteiro.
 json handle_operation(ed2::Engine& engine, const json& req) {
     json resp;
     if (req.contains("id")) {
@@ -65,16 +64,11 @@ json handle_operation(ed2::Engine& engine, const json& req) {
             uint64_t key = req.at("key").get<uint64_t>();
             bool removed = engine.remove(key);
             resp["status"] = removed ? "ok" : "not_found";
-        } else if (op == "scan") {
-            uint64_t start = req.at("start").get<uint64_t>();
-            uint64_t end = req.at("end").get<uint64_t>();
-            auto records = engine.scan(start, end);
-            json arr = json::array();
-            for (const auto& [key, value] : records) {
-                arr.push_back({{"key", key}, {"value", value}});
-            }
-            resp["status"] = "ok";
-            resp["records"] = arr;
+        } else if (op == "verify") {
+            auto result = engine.verify();
+            resp["status"] = result.ok ? "ok" : "corrupted";
+            resp["valid_records"] = result.valid_records;
+            resp["valid_bytes"] = result.valid_bytes;
         } else {
             resp["status"] = "error";
             resp["message"] = "operação desconhecida: '" + op + "'";
@@ -128,12 +122,15 @@ int cmd_run(const std::unordered_map<std::string, std::string>& flags) {
         try {
             req = json::parse(line);
         } catch (const std::exception& e) {
-            std::cerr << "linha ignorada (JSON inválido): " << e.what() << "\n";
+            json err;
+            err["status"] = "error";
+            err["message"] = std::string("JSON inválido: ") + e.what();
+            *output << err.dump() << "\n" << std::flush;
             continue;
         }
 
         json resp = handle_operation(engine, req);
-        *output << resp.dump() << "\n";
+        *output << resp.dump() << "\n" << std::flush;
     }
 
     return 0;
@@ -141,7 +138,7 @@ int cmd_run(const std::unordered_map<std::string, std::string>& flags) {
 
 int cmd_verify(const std::unordered_map<std::string, std::string>& flags) {
     std::string data_dir = require_flag(flags, "data-dir");
-    ed2::Engine engine(data_dir);  // recover() já roda aqui e corrige o log
+    ed2::Engine engine(data_dir);
 
     auto recovery = engine.recovery_stats();
     auto result = engine.verify();
@@ -158,20 +155,15 @@ int cmd_verify(const std::unordered_map<std::string, std::string>& flags) {
 
 int cmd_describe(const std::unordered_map<std::string, std::string>&) {
     json out;
-    out["engine"] = "ed2-adaptive-storage-engine";
-    out["stage"] = "Entrega 1 - Persistent Storage Engine";
+    out["engine"] = "ed2-persistent-storage-engine";
+    out["stage"] = "Entrega Única - Persistent Storage Engine";
     out["architecture"] =
-        "append-only log (data.log) com índice em memória (hash map chave->offset), "
-        "no estilo Bitcask";
+        "append-only log (data.log) com índice em memória (hash map chave->offset)";
     out["key_type"] = "uint64";
     out["value_type"] = "bytes de tamanho variável";
-    out["supported_ops"] = {"put", "get", "delete", "scan"};
+    out["supported_ops"] = {"put", "get", "delete", "verify"};
     out["persistence"] = true;
-    out["crash_recovery"] = true;
     out["integrity_check"] = "CRC32 por registro";
-    out["notes"] =
-        "scan nesta etapa é O(n log n) sobre um índice não ordenado; "
-        "índice ordenado chega na Entrega 2";
     std::cout << out.dump(2) << "\n";
     return 0;
 }

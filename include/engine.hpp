@@ -4,8 +4,6 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include <utility>
-#include <vector>
 
 namespace ed2 {
 
@@ -17,11 +15,6 @@ public:
     void put(uint64_t key, const std::string& value);
     std::optional<std::string> get(uint64_t key);
     bool remove(uint64_t key);
-
-    // Implementação ingênua (O(chaves) + sort) só para completar o
-    // protocolo na Entrega 1. Entrega 2 troca isso por um índice ordenado
-    // de verdade (B+Tree/LSM/arquivo ordenado).
-    std::vector<std::pair<uint64_t, std::string>> scan(uint64_t start, uint64_t end);
 
     struct VerifyResult {
         bool ok;

@@ -4,7 +4,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <algorithm>
 #include <cstring>
 #include <stdexcept>
 #include <vector>
@@ -40,14 +39,12 @@ uint32_t crc32(const uint8_t* data, size_t len) {
     return c ^ 0xFFFFFFFFu;
 }
 
-// Monta o buffer serializado de um registro (sem o checksum) e o retorna
-// junto com o checksum já calculado, prontos para escrita em disco.
+// Monta o buffer serializado de um registro com checksum CRC32 calculado.
 std::vector<uint8_t> build_record(uint8_t flag, uint64_t key, const std::string& value) {
     std::vector<uint8_t> buf(kHeaderSize + value.size());
     uint8_t* p = buf.data();
 
-    // Os 4 primeiros bytes (checksum) ficam em branco por enquanto;
-    // serão preenchidos depois de sabermos o conteúdo restante.
+    // Os 4 primeiros bytes (checksum) são preenchidos após serializar os demais campos.
     p += 4;
 
     std::memcpy(p, &flag, 1);
@@ -79,11 +76,7 @@ void pwrite_all(int fd, const void* buf, size_t count, off_t offset) {
     }
 }
 
-// Lê exatamente `count` bytes a partir de `offset`. Retorna false se o
-// arquivo acabar antes disso (registro truncado — fim do log válido).
-// Equivalente a `mkdir -p`: cria cada componente do caminho que ainda não
-// existir. Necessário porque --data-dir pode apontar para um caminho
-// aninhado que ainda não existe (mkdir() sozinho só cria um nível).
+// Equivalente a `mkdir -p`: cria cada componente do caminho que ainda não existir.
 void mkdir_p(const std::string& path) {
     std::string partial;
     size_t pos = 0;
@@ -98,6 +91,8 @@ void mkdir_p(const std::string& path) {
     }
 }
 
+// Lê exatamente `count` bytes a partir de `offset`. Retorna false se o
+// arquivo acabar antes disso (fim do log válido ou registro truncado).
 bool pread_all(int fd, void* buf, size_t count, off_t offset) {
     uint8_t* p = static_cast<uint8_t*>(buf);
     size_t read_total = 0;
@@ -107,7 +102,7 @@ bool pread_all(int fd, void* buf, size_t count, off_t offset) {
             throw std::runtime_error("falha ao ler data.log");
         }
         if (n == 0) {
-            return false;  // fim do arquivo antes do esperado
+            return false;
         }
         read_total += static_cast<size_t>(n);
     }

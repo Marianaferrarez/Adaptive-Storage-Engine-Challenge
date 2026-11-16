@@ -2,7 +2,9 @@
 #include <unistd.h>
 
 #include <cassert>
+#include <filesystem>
 #include <iostream>
+#include <string>
 
 #include "engine.hpp"
 
@@ -14,6 +16,7 @@
 int main() {
     const char* dir = "data/crash_test";
     const std::string log_path = std::string(dir) + "/data.log";
+    std::filesystem::remove_all(dir);
 
     {
         ed2::Engine engine(dir);
