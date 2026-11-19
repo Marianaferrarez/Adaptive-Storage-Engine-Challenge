@@ -5,7 +5,6 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace ed2 {
@@ -36,9 +35,6 @@ public:
     void put(uint64_t key, const std::string& value);
     std::optional<std::string> get(uint64_t key);
     bool remove(uint64_t key);
-
-    // Extra (não exigido nesta edição): intervalo [start, end] em ordem de chave.
-    std::vector<std::pair<uint64_t, std::string>> scan(uint64_t start, uint64_t end);
 
     struct VerifyResult {
         bool ok = false;

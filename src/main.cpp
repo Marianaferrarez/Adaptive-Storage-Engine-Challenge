@@ -63,7 +63,8 @@ struct ProtocolError : std::runtime_error {
     using std::runtime_error::runtime_error;
 };
 
-uint64_t read_key(const json& req, const char* field = "key") {
+uint64_t read_key(const json& req) {
+    const char* field = "key";
     if (!req.contains(field)) {
         throw ProtocolError(std::string("campo '") + field + "' ausente");
     }
@@ -137,13 +138,6 @@ ojson handle_operation(ed2::Engine& engine, const json& req) {
             } else {
                 return error_response(id, "falha de integridade: " + v.message);
             }
-        } else if (op == "scan") {
-            uint64_t start = read_key(req, "start");
-            uint64_t end = read_key(req, "end");
-            ojson arr = ojson::array();
-            for (const auto& [k, v] : engine.scan(start, end)) arr.push_back({{"key", k}, {"value", v}});
-            resp["status"] = "ok";
-            resp["records"] = arr;
         } else {
             return error_response(id, "operação desconhecida: '" + op + "'");
         }
@@ -233,7 +227,9 @@ int cmd_run(const Flags& flags) {
                 resp = handle_operation(*engine, req);
             }
         }
-        *output << dump(resp) << '\n';
+        // flush por linha: se o processo for interrompido, as respostas já
+        // emitidas ficam no arquivo de saída.
+        *output << dump(resp) << '\n' << std::flush;
     }
 
     output->flush();
@@ -276,10 +272,11 @@ int cmd_init(const Flags& flags) {
 int cmd_describe() {
     ojson out;
     out["engine"] = "ed2-persistent-storage-engine";
+    out["stage"] = "Entrega Única - Persistent Storage Engine";
     out["architecture"] = "log append-only (data.log) + índice hash em memória chave->offset (estilo Bitcask)";
     out["key_type"] = "uint64";
     out["value_type"] = "string de tamanho variável (até 4 GiB - 1 bytes)";
-    out["supported_ops"] = {"put", "get", "delete", "verify", "scan"};
+    out["supported_ops"] = {"put", "get", "delete", "verify"};
     out["integrity"] = "cabeçalho com magic/versão + CRC32 por registro";
     std::cout << out.dump(2) << "\n";
     return 0;

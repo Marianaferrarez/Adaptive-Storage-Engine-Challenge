@@ -73,8 +73,8 @@ Outros arquivos no diretório de dados:
 
 ## Persistência
 
-- Cada PUT/DELETE é entregue ao kernel com `pwrite` antes de a resposta ser
-  escrita, portanto sobrevive ao fim do processo (inclusive `kill -9`, ver
+- Cada PUT/DELETE é entregue ao kernel com `pwrite` antes de a resposta se
+  escrita, portanto sobrevive ao fim do processo (inclusive `kill -9`, ve
   teste "SIGKILL" em `tests/run_tests.sh`).
 - No encerramento normal é feito `fsync` do `data.log`.
 - Não há `fsync` por operação: medimos que isso reduz o PUT de centenas de
@@ -109,4 +109,5 @@ corrompido no meio do arquivo. O reparo existe, mas é explícito.
 - **Abertura O(tamanho do log)**: o índice é reconstruído lendo o log todo.
   Um arquivo de *hint*/checkpoint do índice resolveria.
 - Valor máximo: 4 GiB − 1 byte (campo `value_len` de 32 bits).
-- SCAN existe como extra, mas é O(n log n) (índice hash não é ordenado).
+- Sem SCAN por intervalo (não exigido nesta edição): o índice hash não é
+  ordenado; exigiria uma estrutura ordenada (B+ Tree, arquivo ordenado).

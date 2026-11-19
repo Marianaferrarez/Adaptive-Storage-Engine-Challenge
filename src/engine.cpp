@@ -350,18 +350,6 @@ bool Engine::remove(uint64_t key) {
     return true;
 }
 
-std::vector<std::pair<uint64_t, std::string>> Engine::scan(uint64_t start, uint64_t end) {
-    std::vector<uint64_t> keys;
-    for (const auto& kv : index_) {
-        if (kv.first >= start && kv.first <= end) keys.push_back(kv.first);
-    }
-    std::sort(keys.begin(), keys.end());
-    std::vector<std::pair<uint64_t, std::string>> out;
-    out.reserve(keys.size());
-    for (uint64_t k : keys) out.emplace_back(k, *get(k));
-    return out;
-}
-
 Engine::VerifyResult Engine::verify() {
     VerifyResult v;
     v.file_bytes = file_size(log_fd_);

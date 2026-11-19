@@ -189,7 +189,7 @@ void test_truncated_tail_and_repair() {
         CHECK(e.verify().ok);
         CHECK(e.get(1) == "a");
         CHECK(e.get(2) == "b");
-        e.put(3, "c");  // escrita volta a funcionar
+        e.put(3, "c");  // escrita volta a funciona
     }
     CHECK(file_size(d + "/data.log.corrupted-" + std::to_string(good)) == 6);  // quarentena
     ed2::Engine e(d);
@@ -226,14 +226,36 @@ void test_lock_prevents_second_instance() {
     CHECK(throws([&] { ed2::Engine b(d); }));
 }
 
-void test_scan_extra() {
-    auto d = fresh_dir("scan");
+// Cenário funcional completo (vindo do smoke test da Lethicia, branch
+// feature/entrega-3): PUT, sobrescrita, DELETE, reinserção, valores de
+// tamanhos variados, VERIFY e persistência após reiniciar.
+void test_functional_scenario() {
+    auto d = fresh_dir("cenario_funcional");
+    const uint64_t kMax = 18446744073709551615ULL;
+    const std::string grande(4096, 'X');
+    {
+        ed2::Engine e(d);
+        e.put(91, "abc");
+        CHECK(e.get(91) == "abc");
+        e.put(91, "abc-atualizado");
+        CHECK(e.get(91) == "abc-atualizado");
+        CHECK(e.remove(91));
+        CHECK(!e.get(91).has_value());
+        CHECK(!e.remove(91));
+        e.put(91, "reinserida");
+        CHECK(e.get(91) == "reinserida");
+        e.put(7, "");
+        CHECK(e.get(7) == "");
+        e.put(kMax, grande);
+        CHECK(e.get(kMax) == grande);
+        CHECK(e.verify().ok);
+    }
     ed2::Engine e(d);
-    for (uint64_t k : {5, 1, 9, 3, 7}) e.put(k, std::to_string(k));
-    e.remove(7);
-    auto r = e.scan(2, 8);
-    CHECK(r.size() == 2);
-    CHECK(r.size() == 2 && r[0].first == 3 && r[1].first == 5);
+    CHECK(e.get(91) == "reinserida");
+    CHECK(e.get(7) == "");
+    CHECK(e.get(kMax) == grande);
+    CHECK(!e.get(999).has_value());
+    CHECK(e.verify().ok);
 }
 
 // Teste diferencial: 20 000 operações aleatórias comparadas com std::map,
@@ -288,7 +310,7 @@ int main() {
         {"value_len gigante não derruba", test_huge_value_len_does_not_crash},
         {"recusa arquivo desconhecido", test_rejects_foreign_file},
         {"lock impede segunda instância", test_lock_prevents_second_instance},
-        {"scan (extra)", test_scan_extra},
+        {"cenário funcional completo", test_functional_scenario},
         {"aleatório vs modelo (20k ops)", test_randomized_against_model},
     };
     for (auto& [name, fn] : tests) {

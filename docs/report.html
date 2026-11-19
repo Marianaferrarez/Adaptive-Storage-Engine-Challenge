@@ -102,7 +102,7 @@ bytes inválidos em quarentena.</p>
 
 <h2>4. Testes e resultados</h2>
 <p>A suíte <code>tests/run_tests.sh</code> executa 61 verificações em 8 camadas: estrutura da entrega,
-14 613 asserções unitárias em C++ (incluindo um teste diferencial de 20 000 operações aleatórias contra
+14 625 asserções unitárias em C++ (incluindo um teste diferencial de 20 000 operações aleatórias contra
 <code>std::map</code>, reabrindo o engine a cada 2 000), contrato do <code>run.sh</code>, 10 workloads de correção,
 cenários de persistência com várias execuções, corrupção de arquivos, um dataset maior que a memória e a
 validação pública. As respostas esperadas são geradas por um modelo de referência em Python, independente do
@@ -124,8 +124,8 @@ citada nas limitações.</p>
 <h3>Workload 2 — dataset maior que a memória disponível</h3>
 <table class="avoid">
 <tr><th>Fase</th><th>Conteúdo</th><th class="n">Ops</th><th>Limite de memória</th><th>Resultado</th><th class="n">Tempo</th></tr>
-<tr><td>setup</td><td>12 002 PUTs (0–16 KiB, mais valores de 1 e 3 MiB), 3 000 sobrescritas, 1 200 DELETEs, 500 GETs</td><td class="n">16 703</td><td><code>ulimit -v</code> 48 MiB</td><td>PASS</td><td class="n">3,05 s</td></tr>
-<tr><td>restart</td><td>GET de todas as chaves em ordem aleatória + VERIFY</td><td class="n">12 003</td><td><code>ulimit -v</code> 48 MiB</td><td>PASS</td><td class="n">1,46 s</td></tr>
+<tr><td>setup</td><td>12 002 PUTs (0–16 KiB, mais valores de 1 e 3 MiB), 3 000 sobrescritas, 1 200 DELETEs, 500 GETs</td><td class="n">16 703</td><td><code>ulimit -v</code> 48 MiB</td><td>PASS</td><td class="n">6,64 s</td></tr>
+<tr><td>restart</td><td>GET de todas as chaves em ordem aleatória + VERIFY</td><td class="n">12 003</td><td><code>ulimit -v</code> 48 MiB</td><td>PASS</td><td class="n">3,38 s</td></tr>
 </table>
 <p>Foram gravados ~121 MiB de valores (<code>data.log</code> = 122 MiB) com o processo limitado a 48 MiB de
 memória virtual. Isso mostra que a solução não depende de manter o dataset em RAM. Microbenchmark
