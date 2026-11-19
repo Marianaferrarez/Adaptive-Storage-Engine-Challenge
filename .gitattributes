@@ -1,0 +1,5 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.pdf binary
+*.zip binary
+tests/cases/09_crlf_linhas_em_branco.jsonl -text

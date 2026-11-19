@@ -1,0 +1,26 @@
+{"id": 1, "status": "ok"}
+{"id": 2, "status": "error", "message": "*"}
+{"id": 3, "status": "error", "message": "*"}
+{"id": 4, "status": "error", "message": "*"}
+{"id": 5, "status": "error", "message": "*"}
+{"id": 6, "status": "error", "message": "*"}
+{"id": 7, "status": "error", "message": "*"}
+{"id": 8, "status": "error", "message": "*"}
+{"id": 9, "status": "error", "message": "*"}
+{"id": 10, "status": "error", "message": "*"}
+{"id": 11, "status": "error", "message": "*"}
+{"id": 12, "status": "error", "message": "*"}
+{"id": 13, "status": "error", "message": "*"}
+{"id": 14, "status": "error", "message": "*"}
+{"id": 15, "status": "error", "message": "*"}
+{"id": 16, "status": "error", "message": "*"}
+{"id": 17, "status": "error", "message": "*"}
+{"id": 18, "status": "error", "message": "*"}
+{"id": 19, "status": "error", "message": "*"}
+{"id": null, "status": "error", "message": "*"}
+{"id": null, "status": "error", "message": "*"}
+{"id": null, "status": "error", "message": "*"}
+{"id": 23, "status": "ok", "value": "original"}
+{"id": 24, "status": "ok"}
+{"id": 25, "status": "ok"}
+{"id": 26, "status": "ok", "value": "depois dos erros"}

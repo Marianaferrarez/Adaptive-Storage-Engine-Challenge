@@ -1,0 +1,6 @@
+{"id": 1, "op": "get", "key": 1}
+{"id": 2, "op": "delete", "key": 1}
+{"id": 3, "op": "verify"}
+{"id": 4, "op": "get", "key": 0}
+{"id": 5, "op": "delete", "key": 18446744073709551615}
+{"id": 6, "op": "verify"}

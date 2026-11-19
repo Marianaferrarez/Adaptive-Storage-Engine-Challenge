@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Relatório — Persistent Storage Engine</title>
+<style>
+  @page { size: A4; margin: 18mm 17mm 16mm 17mm; }
+  :root { --ink:#1b1f24; --muted:#5b6470; --accent:#1f4e79; --line:#d6dbe1; --soft:#f3f5f8; }
+  body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color:var(--ink); font-size:10.2pt; line-height:1.42; margin:0; background:#fff; }
+  h1 { font-size:17pt; color:var(--accent); margin:0 0 2px; }
+  .sub { color:var(--muted); margin:0 0 10px; font-size:9.5pt; }
+  h2 { font-size:12pt; color:var(--accent); border-bottom:1.5px solid var(--line); padding-bottom:2px; margin:14px 0 6px; }
+  h3 { font-size:10.5pt; margin:10px 0 4px; }
+  p { margin:4px 0 6px; text-align:justify; }
+  ul { margin:3px 0 6px 0; padding-left:18px; } li { margin:1.5px 0; }
+  table { border-collapse:collapse; width:100%; margin:5px 0 8px; font-size:9.2pt; }
+  th, td { border:1px solid var(--line); padding:3px 6px; text-align:left; vertical-align:top; }
+  th { background:var(--soft); }
+  td.n, th.n { text-align:right; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  td code { white-space:nowrap; }
+  code, pre { font-family: Consolas, "DejaVu Sans Mono", monospace; font-size:8.8pt; }
+  pre { background:var(--soft); border:1px solid var(--line); padding:6px 8px; margin:5px 0 8px; white-space:pre-wrap; }
+  .fill { background:#fff3b0; padding:0 3px; }
+  .avoid { break-inside: avoid; }
+  .two { display:flex; gap:14px; } .two > div { flex:1; }
+</style>
+</head>
+<body>
+
+<h1>Persistent Storage Engine</h1>
+<p class="sub">Estrutura de Dados II — Trabalho Semestral 2026/2 · Grupo <span class="fill">XX</span> ·
+Integrantes: Mariana Ribeiro, <span class="fill">Nome 2</span>, <span class="fill">Nome 3</span> ·
+Repositório: github.com/Marianaferrarez/Adaptive-Storage-Engine-Challenge</p>
+
+<h2>1. Arquitetura</h2>
+<p>O engine é um armazenamento chave-valor no modelo <b>Bitcask</b>: um único arquivo de log
+<i>append-only</i> (<code>data.log</code>) guarda todas as escritas, e um <b>índice hash em memória</b>
+(<code>unordered_map&lt;uint64, offset&gt;</code>) aponta, para cada chave viva, o offset do seu registro
+mais recente. Foi implementado em C++17, usando somente chamadas POSIX (<code>open</code>, <code>pwrite</code>,
+<code>pread</code>, <code>fsync</code>, <code>flock</code>). A biblioteca nlohmann/json é usada apenas para ler
+e escrever o protocolo JSONL.</p>
+<ul>
+  <li><b>PUT</b>: serializa o registro, acrescenta-o no fim do log e faz <code>índice[k] = offset</code>.
+      A sobrescrita é só um novo registro; os bytes antigos nunca são alterados.</li>
+  <li><b>GET</b>: busca O(1) no índice e lê <b>somente aquele registro</b> do disco com <code>pread</code>,
+      revalidando o CRC antes de responder. Chave ausente → <code>not_found</code>.</li>
+  <li><b>DELETE</b>: grava um <i>tombstone</i> (flag = 1) e remove a chave do índice; reinserir é um PUT normal.</li>
+  <li><b>VERIFY</b>: relê o arquivo inteiro, validando cabeçalho, CRC32 e flag de cada registro e o tamanho
+      do arquivo, e compara um índice reconstruído a partir do disco com o índice em memória.</li>
+  <li><b>Abertura</b>: percorre o log uma vez, sequencialmente, reconstruindo o índice (a última versão
+      vence; tombstone remove).</li>
+</ul>
+<p>A escolha se justifica pela simplicidade e pela segurança: todas as escritas são sequenciais e nenhum
+byte já gravado é reescrito, então uma atualização nunca pode corromper um valor anterior. Como os
+<b>valores ficam somente em disco</b>, o consumo de RAM é proporcional ao número de chaves vivas
+(~50 B por chave), e não ao tamanho do dataset. A camada de protocolo (<code>main.cpp</code>) fica separada
+do engine (<code>engine.cpp</code>), o que permite testar o engine diretamente com testes unitários.</p>
+
+<h2>2. Formato dos arquivos</h2>
+<div class="two avoid">
+<div>
+<p>Inteiros em little-endian. O arquivo começa com um cabeçalho de 16 bytes, seguido dos registros:</p>
+<pre>cabeçalho (16 B):
+  "ED2KVLOG" | version u32 | reservado u32
+registro (17 B + valor):
+  crc32 u32 | flag u8 | key u64
+  | value_len u32 | value</pre>
+</div>
+<div>
+<table>
+<tr><th>Campo</th><th>Descrição</th></tr>
+<tr><td>crc32</td><td>CRC-32 IEEE de flag+key+len+value</td></tr>
+<tr><td>flag</td><td>0 = PUT, 1 = DELETE (tombstone)</td></tr>
+<tr><td>key</td><td>chave uint64 (0 … 2⁶⁴−1)</td></tr>
+<tr><td>value_len</td><td>tamanho do valor (até 4 GiB−1)</td></tr>
+</table>
+</div>
+</div>
+<p>O <i>magic</i> e a versão permitem reconhecer o arquivo: se o <code>data.log</code> existente não for deste
+engine, ele <b>não é tocado</b> e todas as operações respondem erro. O único outro arquivo possível é
+<code>data.log.corrupted-&lt;offset&gt;</code>, criado pelo comando explícito <code>engine repair</code> para guardar
+bytes inválidos em quarentena.</p>
+
+<h2>3. Estratégia de persistência e integridade</h2>
+<ul>
+  <li>Cada PUT/DELETE é entregue ao kernel com <code>pwrite</code> antes de a resposta ser emitida. Os dados
+      sobrevivem ao encerramento normal (<code>fsync</code> no fechamento) e também a um <code>kill -9</code>,
+      como mostra um teste automatizado.</li>
+  <li>Não fazemos <code>fsync</code> por operação: no benchmark, isso derrubava o PUT para ~150 ops/s, e
+      recuperação após queda de energia não é requisito desta edição.</li>
+  <li>Integridade: o CRC32 é conferido em todo GET e em todo VERIFY. Um <code>value_len</code> corrompido é
+      comparado com o tamanho do arquivo <i>antes</i> de alocar memória, então não pode derrubar o processo.</li>
+  <li>Se a abertura encontra bytes inválidos, o índice é montado até o último registro íntegro. Leituras
+      continuam funcionando, VERIFY responde <code>error</code> e PUT/DELETE são <b>recusados</b>, para não gravar
+      dados novos depois de lixo. Não reparamos automaticamente porque truncar silenciosamente apagaria dados
+      válidos que estivessem depois de um byte corrompido no meio do arquivo.</li>
+  <li>Um <code>flock</code> exclusivo impede dois processos de escreverem no mesmo diretório. Erros de entrada
+      (JSON inválido, campos ausentes, chave negativa, fracionária ou &gt; 2⁶⁴−1, valor que não é string, operação
+      desconhecida) geram <code>{"status":"error","message":…}</code>, e o processamento continua: há sempre
+      exatamente uma resposta por operação.</li>
+</ul>
+
+<h2>4. Testes e resultados</h2>
+<p>A suíte <code>tests/run_tests.sh</code> executa 61 verificações em 8 camadas: estrutura da entrega,
+14 613 asserções unitárias em C++ (incluindo um teste diferencial de 20 000 operações aleatórias contra
+<code>std::map</code>, reabrindo o engine a cada 2 000), contrato do <code>run.sh</code>, 10 workloads de correção,
+cenários de persistência com várias execuções, corrupção de arquivos, um dataset maior que a memória e a
+validação pública. As respostas esperadas são geradas por um modelo de referência em Python, independente do
+código C++. Todas passam. Ambiente: Ubuntu (WSL2), g++ 15.2, <code>-O2</code>.</p>
+
+<h3>Workload 1 — ciclo de persistência (6 processos sobre o mesmo diretório)</h3>
+<table class="avoid">
+<tr><th>Execução</th><th>Conteúdo</th><th class="n">Ops</th><th>Resultado</th><th class="n">Tempo</th><th class="n">data.log</th></tr>
+<tr><td>1 setup</td><td>50 PUTs, 10 sobrescritas, 8 DELETEs, chave 2⁶⁴−1, valor vazio, UTF-8/emoji</td><td class="n">71</td><td>PASS</td><td class="n">0,084 s</td><td class="n">1 771 B</td></tr>
+<tr><td>2 restart</td><td>GET de todas as chaves + VERIFY</td><td class="n">54</td><td>PASS</td><td class="n">0,086 s</td><td class="n">1 771 B</td></tr>
+<tr><td>3 altera</td><td>reinsere removidas, novos DELETEs</td><td class="n">22</td><td>PASS</td><td class="n">0,074 s</td><td class="n">2 229 B</td></tr>
+<tr><td>4 confere</td><td>GET de tudo + VERIFY</td><td class="n">53</td><td>PASS</td><td class="n">0,081 s</td><td class="n">2 229 B</td></tr>
+<tr><td>5–6</td><td>abertura sem escrita; nova conferência</td><td class="n">54</td><td>PASS</td><td class="n">0,08 s</td><td class="n">2 229 B</td></tr>
+</table>
+<p>As leituras não alteram o arquivo (o tamanho fica constante nas execuções 2, 4, 5 e 6). Ao final, o log
+tem 91 registros para 40 chaves vivas: as versões antigas permanecem no arquivo, o que motiva a compactação
+citada nas limitações.</p>
+
+<h3>Workload 2 — dataset maior que a memória disponível</h3>
+<table class="avoid">
+<tr><th>Fase</th><th>Conteúdo</th><th class="n">Ops</th><th>Limite de memória</th><th>Resultado</th><th class="n">Tempo</th></tr>
+<tr><td>setup</td><td>12 002 PUTs (0–16 KiB, mais valores de 1 e 3 MiB), 3 000 sobrescritas, 1 200 DELETEs, 500 GETs</td><td class="n">16 703</td><td><code>ulimit -v</code> 48 MiB</td><td>PASS</td><td class="n">3,05 s</td></tr>
+<tr><td>restart</td><td>GET de todas as chaves em ordem aleatória + VERIFY</td><td class="n">12 003</td><td><code>ulimit -v</code> 48 MiB</td><td>PASS</td><td class="n">1,46 s</td></tr>
+</table>
+<p>Foram gravados ~121 MiB de valores (<code>data.log</code> = 122 MiB) com o processo limitado a 48 MiB de
+memória virtual. Isso mostra que a solução não depende de manter o dataset em RAM. Microbenchmark
+complementar (<code>experiments/benchmark.cpp</code>): valores de 100 B → ~930 mil PUT/s e ~660 mil GET/s;
+valores de 4 KiB → ~80 mil PUT/s e ~84 mil GET/s.</p>
+
+<h2>5. Limitações</h2>
+<ul>
+  <li><b>Sem compactação</b>: o log cresce a cada escrita, mesmo que o número de chaves não mude. Trabalho
+      futuro: reescrever só os registros vivos num arquivo novo e trocá-lo com <code>rename</code> atômico.</li>
+  <li><b>Índice em RAM</b> (não os valores): com bilhões de chaves, seria preciso um índice em disco
+      (B+ Tree ou hash extensível).</li>
+  <li><b>Abertura O(tamanho do log)</b>: um arquivo de <i>hint</i>/checkpoint do índice evitaria reler tudo.</li>
+  <li>Sem durabilidade garantida contra queda de energia (sem <code>fsync</code> por operação). O reparo de
+      corrupção é manual (<code>engine repair</code>). Requer Linux/POSIX.</li>
+</ul>
+
+<h2>6. Contribuição de cada integrante</h2>
+<table class="avoid">
+<tr><th style="width:28%">Integrante</th><th>Contribuição</th></tr>
+<tr><td>Mariana Ribeiro</td><td><span class="fill">ex.: engine (formato do log, índice, recuperação), run.sh, integração</span></td></tr>
+<tr><td><span class="fill">Nome 2</span></td><td><span class="fill">ex.: suíte de testes, workloads, validação pública</span></td></tr>
+<tr><td><span class="fill">Nome 3</span></td><td><span class="fill">ex.: VERIFY/integridade, README, relatório, benchmark</span></td></tr>
+</table>
+
+<h2>7. Uso de IA generativa</h2>
+<p>Usamos um assistente de IA generativa (Claude, da Anthropic) como apoio para revisar o código, para
+sugerir casos de teste (corrupção, limites de uint64, entradas inválidas) e para redigir a documentação.
+Todas as decisões de arquitetura foram discutidas pelo grupo, o código foi lido e entendido pelos
+integrantes, e a correção foi conferida pela suíte de testes descrita acima.
+<span class="fill">Ajustem este parágrafo para refletir exatamente como o grupo usou a ferramenta.</span></p>
+
+</body>
+</html>

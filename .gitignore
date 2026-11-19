@@ -1,5 +1,14 @@
-engine
+# binários e dados gerados
+build/
 data/
+data-*/
 *.o
 *.log
-build/
+
+# resultados de execução
+*-results.jsonl
+*.zip
+
+# IDEs
+.vscode/
+.idea/
