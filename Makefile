@@ -1,30 +1,37 @@
-CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -O2 -Iinclude -Ithird_party
+CXX      ?= g++
+CXXFLAGS ?= -std=c++17 -O2 -Wall -Wextra
+CXXFLAGS += -Isrc
 
-BIN := engine
-SRCS := src/engine.cpp
-HEADERS := include/engine.hpp
+BUILD   := build
+BIN     := $(BUILD)/engine
+SRCS    := src/engine.cpp
+HEADERS := src/engine.hpp
 
-.PHONY: all clean test
+.PHONY: all test unit clean zip
 
 all: $(BIN)
 
 $(BIN): src/main.cpp $(SRCS) $(HEADERS)
-	$(CXX) $(CXXFLAGS) src/main.cpp $(SRCS) -o $(BIN)
+	@mkdir -p $(BUILD)
+	$(CXX) $(CXXFLAGS) src/main.cpp $(SRCS) -o $@
 
-crash_test: experiments/crash_recovery_test.cpp $(SRCS) $(HEADERS)
-	$(CXX) $(CXXFLAGS) experiments/crash_recovery_test.cpp $(SRCS) -o crash_test
+$(BUILD)/unit_tests: tests/unit_tests.cpp $(SRCS) $(HEADERS)
+	@mkdir -p $(BUILD)
+	$(CXX) $(CXXFLAGS) tests/unit_tests.cpp $(SRCS) -o $@
 
-smoke_test: experiments/smoke_test.cpp $(SRCS) $(HEADERS)
-	$(CXX) $(CXXFLAGS) experiments/smoke_test.cpp $(SRCS) -o smoke_test
+$(BUILD)/benchmark: experiments/benchmark.cpp $(SRCS) $(HEADERS)
+	@mkdir -p $(BUILD)
+	$(CXX) $(CXXFLAGS) experiments/benchmark.cpp $(SRCS) -o $@
 
-benchmark: experiments/benchmark.cpp $(SRCS) $(HEADERS)
-	$(CXX) $(CXXFLAGS) experiments/benchmark.cpp $(SRCS) -o benchmark
+unit: $(BUILD)/unit_tests
+	./$(BUILD)/unit_tests
 
-test: smoke_test crash_test
-	./smoke_test
-	./crash_test
+# Suíte completa (unitários + workloads + persistência + corrupção + contrato).
+test: $(BIN) $(BUILD)/unit_tests
+	bash tests/run_tests.sh
+
+zip:
+	bash tests/make_zip.sh
 
 clean:
-	rm -f $(BIN) crash_test smoke_test benchmark
-	rm -rf data
+	rm -rf $(BUILD)

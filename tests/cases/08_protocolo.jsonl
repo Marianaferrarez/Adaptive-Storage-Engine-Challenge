@@ -1,0 +1,9 @@
+{"id": 1000, "op": "put", "key": 1, "value": "a"}
+{"id": "abc", "op": "get", "key": 1}
+{"id": 7, "op": "get", "key": 1}
+{"id": 1152921504606846976, "op": "delete", "key": 1}
+{"id": 3, "op": "PUT", "key": 2, "value": "maiusc"}
+{"id": 4, "op": "Get", "key": 2}
+{"id": 5, "op": "VERIFY"}
+{"id": 6, "value": "ordem", "key": 3, "op": "put", "extra": "ignorado"}
+{"id": 8, "key": 3, "op": "get"}

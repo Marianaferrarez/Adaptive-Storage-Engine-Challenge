@@ -1,0 +1,7 @@
+{"id": 1, "op": "get", "key": 91}
+{"id": 2, "op": "get", "key": 92}
+{"id": 3, "op": "get", "key": 93}
+{"id": 4, "op": "get", "key": 94}
+{"id": 5, "op": "put", "key": 92, "value": "voltou"}
+{"id": 6, "op": "get", "key": 92}
+{"id": 7, "op": "verify"}

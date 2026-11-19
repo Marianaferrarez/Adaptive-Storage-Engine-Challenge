@@ -1,0 +1,71 @@
+{"id": 1, "op": "put", "key": 1, "value": "valor-1"}
+{"id": 2, "op": "put", "key": 2, "value": "valor-2"}
+{"id": 3, "op": "put", "key": 3, "value": "valor-3"}
+{"id": 4, "op": "put", "key": 4, "value": "valor-4"}
+{"id": 5, "op": "put", "key": 5, "value": "valor-5"}
+{"id": 6, "op": "put", "key": 6, "value": "valor-6"}
+{"id": 7, "op": "put", "key": 7, "value": "valor-7"}
+{"id": 8, "op": "put", "key": 8, "value": "valor-8"}
+{"id": 9, "op": "put", "key": 9, "value": "valor-9"}
+{"id": 10, "op": "put", "key": 10, "value": "valor-10"}
+{"id": 11, "op": "put", "key": 11, "value": "valor-11"}
+{"id": 12, "op": "put", "key": 12, "value": "valor-12"}
+{"id": 13, "op": "put", "key": 13, "value": "valor-13"}
+{"id": 14, "op": "put", "key": 14, "value": "valor-14"}
+{"id": 15, "op": "put", "key": 15, "value": "valor-15"}
+{"id": 16, "op": "put", "key": 16, "value": "valor-16"}
+{"id": 17, "op": "put", "key": 17, "value": "valor-17"}
+{"id": 18, "op": "put", "key": 18, "value": "valor-18"}
+{"id": 19, "op": "put", "key": 19, "value": "valor-19"}
+{"id": 20, "op": "put", "key": 20, "value": "valor-20"}
+{"id": 21, "op": "put", "key": 21, "value": "valor-21"}
+{"id": 22, "op": "put", "key": 22, "value": "valor-22"}
+{"id": 23, "op": "put", "key": 23, "value": "valor-23"}
+{"id": 24, "op": "put", "key": 24, "value": "valor-24"}
+{"id": 25, "op": "put", "key": 25, "value": "valor-25"}
+{"id": 26, "op": "put", "key": 26, "value": "valor-26"}
+{"id": 27, "op": "put", "key": 27, "value": "valor-27"}
+{"id": 28, "op": "put", "key": 28, "value": "valor-28"}
+{"id": 29, "op": "put", "key": 29, "value": "valor-29"}
+{"id": 30, "op": "put", "key": 30, "value": "valor-30"}
+{"id": 31, "op": "put", "key": 31, "value": "valor-31"}
+{"id": 32, "op": "put", "key": 32, "value": "valor-32"}
+{"id": 33, "op": "put", "key": 33, "value": "valor-33"}
+{"id": 34, "op": "put", "key": 34, "value": "valor-34"}
+{"id": 35, "op": "put", "key": 35, "value": "valor-35"}
+{"id": 36, "op": "put", "key": 36, "value": "valor-36"}
+{"id": 37, "op": "put", "key": 37, "value": "valor-37"}
+{"id": 38, "op": "put", "key": 38, "value": "valor-38"}
+{"id": 39, "op": "put", "key": 39, "value": "valor-39"}
+{"id": 40, "op": "put", "key": 40, "value": "valor-40"}
+{"id": 41, "op": "put", "key": 41, "value": "valor-41"}
+{"id": 42, "op": "put", "key": 42, "value": "valor-42"}
+{"id": 43, "op": "put", "key": 43, "value": "valor-43"}
+{"id": 44, "op": "put", "key": 44, "value": "valor-44"}
+{"id": 45, "op": "put", "key": 45, "value": "valor-45"}
+{"id": 46, "op": "put", "key": 46, "value": "valor-46"}
+{"id": 47, "op": "put", "key": 47, "value": "valor-47"}
+{"id": 48, "op": "put", "key": 48, "value": "valor-48"}
+{"id": 49, "op": "put", "key": 49, "value": "valor-49"}
+{"id": 50, "op": "put", "key": 50, "value": "valor-50"}
+{"id": 51, "op": "put", "key": 1, "value": "sobrescrito-1"}
+{"id": 52, "op": "put", "key": 6, "value": "sobrescrito-6"}
+{"id": 53, "op": "put", "key": 11, "value": "sobrescrito-11"}
+{"id": 54, "op": "put", "key": 16, "value": "sobrescrito-16"}
+{"id": 55, "op": "put", "key": 21, "value": "sobrescrito-21"}
+{"id": 56, "op": "put", "key": 26, "value": "sobrescrito-26"}
+{"id": 57, "op": "put", "key": 31, "value": "sobrescrito-31"}
+{"id": 58, "op": "put", "key": 36, "value": "sobrescrito-36"}
+{"id": 59, "op": "put", "key": 41, "value": "sobrescrito-41"}
+{"id": 60, "op": "put", "key": 46, "value": "sobrescrito-46"}
+{"id": 61, "op": "delete", "key": 2}
+{"id": 62, "op": "delete", "key": 9}
+{"id": 63, "op": "delete", "key": 16}
+{"id": 64, "op": "delete", "key": 23}
+{"id": 65, "op": "delete", "key": 30}
+{"id": 66, "op": "delete", "key": 37}
+{"id": 67, "op": "delete", "key": 44}
+{"id": 68, "op": "put", "key": 1000000, "value": ""}
+{"id": 69, "op": "put", "key": 18446744073709551615, "value": "maior chave"}
+{"id": 70, "op": "put", "key": 999, "value": "ação 😀 \n multi-linha"}
+{"id": 71, "op": "verify"}

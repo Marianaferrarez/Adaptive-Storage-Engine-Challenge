@@ -1,0 +1,40 @@
+{"id": 1, "op": "put", "key": 5, "value": "a"}
+{"id": 2, "op": "delete", "key": 5}
+{"id": 3, "op": "get", "key": 5}
+{"id": 4, "op": "delete", "key": 5}
+{"id": 5, "op": "put", "key": 5, "value": "b"}
+{"id": 6, "op": "get", "key": 5}
+{"id": 7, "op": "delete", "key": 5}
+{"id": 8, "op": "put", "key": 5, "value": "c"}
+{"id": 9, "op": "put", "key": 5, "value": "d"}
+{"id": 10, "op": "get", "key": 5}
+{"id": 11, "op": "delete", "key": 6}
+{"id": 12, "op": "put", "key": 6, "value": ""}
+{"id": 13, "op": "delete", "key": 6}
+{"id": 14, "op": "get", "key": 6}
+{"id": 15, "op": "put", "key": 6, "value": "volta"}
+{"id": 16, "op": "get", "key": 6}
+{"id": 17, "op": "put", "key": 7, "value": "ciclo-0"}
+{"id": 18, "op": "delete", "key": 7}
+{"id": 19, "op": "put", "key": 7, "value": "ciclo-1"}
+{"id": 20, "op": "delete", "key": 7}
+{"id": 21, "op": "put", "key": 7, "value": "ciclo-2"}
+{"id": 22, "op": "delete", "key": 7}
+{"id": 23, "op": "put", "key": 7, "value": "ciclo-3"}
+{"id": 24, "op": "delete", "key": 7}
+{"id": 25, "op": "put", "key": 7, "value": "ciclo-4"}
+{"id": 26, "op": "delete", "key": 7}
+{"id": 27, "op": "put", "key": 7, "value": "ciclo-5"}
+{"id": 28, "op": "delete", "key": 7}
+{"id": 29, "op": "put", "key": 7, "value": "ciclo-6"}
+{"id": 30, "op": "delete", "key": 7}
+{"id": 31, "op": "put", "key": 7, "value": "ciclo-7"}
+{"id": 32, "op": "delete", "key": 7}
+{"id": 33, "op": "put", "key": 7, "value": "ciclo-8"}
+{"id": 34, "op": "delete", "key": 7}
+{"id": 35, "op": "put", "key": 7, "value": "ciclo-9"}
+{"id": 36, "op": "delete", "key": 7}
+{"id": 37, "op": "get", "key": 7}
+{"id": 38, "op": "put", "key": 7, "value": "fim"}
+{"id": 39, "op": "get", "key": 7}
+{"id": 40, "op": "verify"}

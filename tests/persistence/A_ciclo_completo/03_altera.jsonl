@@ -1,0 +1,22 @@
+{"id": 1, "op": "put", "key": 2, "value": "reinserido-2"}
+{"id": 2, "op": "put", "key": 9, "value": "reinserido-9"}
+{"id": 3, "op": "put", "key": 16, "value": "reinserido-16"}
+{"id": 4, "op": "put", "key": 23, "value": "reinserido-23"}
+{"id": 5, "op": "put", "key": 30, "value": "reinserido-30"}
+{"id": 6, "op": "put", "key": 37, "value": "reinserido-37"}
+{"id": 7, "op": "put", "key": 44, "value": "reinserido-44"}
+{"id": 8, "op": "delete", "key": 3}
+{"id": 9, "op": "delete", "key": 7}
+{"id": 10, "op": "delete", "key": 11}
+{"id": 11, "op": "delete", "key": 15}
+{"id": 12, "op": "delete", "key": 19}
+{"id": 13, "op": "delete", "key": 23}
+{"id": 14, "op": "delete", "key": 27}
+{"id": 15, "op": "delete", "key": 31}
+{"id": 16, "op": "delete", "key": 35}
+{"id": 17, "op": "delete", "key": 39}
+{"id": 18, "op": "delete", "key": 43}
+{"id": 19, "op": "delete", "key": 47}
+{"id": 20, "op": "put", "key": 1, "value": "nova versão"}
+{"id": 21, "op": "delete", "key": 1000000}
+{"id": 22, "op": "verify"}

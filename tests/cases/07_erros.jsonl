@@ -1,0 +1,26 @@
+{"id": 1, "op": "put", "key": 1, "value": "original"}
+{"id": 2, "op": "put", "key": 1}
+{"id": 3, "op": "put", "value": "sem chave"}
+{"id": 4, "op": "put", "key": -1, "value": "negativa"}
+{"id": 5, "op": "put", "key": 1.5, "value": "fracionária"}
+{"id": 6, "op": "put", "key": "1", "value": "chave string"}
+{"id": 7, "op": "put", "key": 18446744073709551616, "value": "estoura uint64"}
+{"id": 8, "op": "put", "key": true, "value": "booleano"}
+{"id": 9, "op": "put", "key": null, "value": "nula"}
+{"id": 10, "op": "put", "key": 1, "value": 123}
+{"id": 11, "op": "put", "key": 1, "value": null}
+{"id": 12, "op": "put", "key": 1, "value": ["lista"]}
+{"id": 13, "op": "get"}
+{"id": 14, "op": "get", "key": -5}
+{"id": 15, "op": "delete", "key": "abc"}
+{"id": 16, "op": "scan_inexistente", "key": 1}
+{"id": 17, "op": 42}
+{"id": 18, "key": 1}
+{"id": 19, "op": "put", "key": 1, "value": "sem fechar"
+isto não é json
+[1, 2, 3]
+{"op": "get", "key": 1}
+{"id": 23, "op": "get", "key": 1}
+{"id": 24, "op": "verify"}
+{"id": 25, "op": "put", "key": 1, "value": "depois dos erros"}
+{"id": 26, "op": "get", "key": 1}
