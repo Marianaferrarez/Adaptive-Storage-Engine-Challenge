@@ -10,8 +10,8 @@ VERIFY** via JSON Lines.
 | Nome | Matrícula |
 |------|-----------|
 | Mariana Ribeiro | _preencher_ |
-| _preencher_ | _preencher_ |
-| _preencher_ | _preencher_ |
+| Guilherme Ferrão | 20230024154 |
+| Lethicia Silva | _preencher_ |
 
 ## Linguagem, versões e dependências
 
