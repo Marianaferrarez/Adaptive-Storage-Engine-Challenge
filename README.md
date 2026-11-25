@@ -9,9 +9,9 @@ VERIFY** via JSON Lines.
 
 | Nome | Matrícula |
 |------|-----------|
-| Mariana Ribeiro | _preencher_ |
+| Mariana Ribeiro | 20230001113 |
 | Guilherme Ferrão | 20230024154 |
-| Lethicia Silva | _preencher_ |
+| Lethicia Silva | 20230018021 |
 
 ## Linguagem, versões e dependências
 
