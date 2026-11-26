@@ -9,7 +9,7 @@
   body { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; color:var(--ink); font-size:10.2pt; line-height:1.42; margin:0; background:#fff; }
   h1 { font-size:17pt; color:var(--accent); margin:0 0 2px; }
   .sub { color:var(--muted); margin:0 0 10px; font-size:9.5pt; }
-  h2 { font-size:12pt; color:var(--accent); border-bottom:1.5px solid var(--line); padding-bottom:2px; margin:14px 0 6px; }
+  h2 { font-size:12pt; color:var(--accent); border-bottom:1.5px solid var(--line); padding-bottom:2px; margin:14px 0 6px; break-after:avoid; page-break-after:avoid; }
   h3 { font-size:10.5pt; margin:10px 0 4px; }
   p { margin:4px 0 6px; text-align:justify; }
   ul { margin:3px 0 6px 0; padding-left:18px; } li { margin:1.5px 0; }
@@ -111,7 +111,7 @@ código C++. Todas passam. Ambiente: Ubuntu (WSL2), g++ 15.2, <code>-O2</code>.<
 <h3>Workload 1 — ciclo de persistência (6 processos sobre o mesmo diretório)</h3>
 <table class="avoid">
 <tr><th>Execução</th><th>Conteúdo</th><th class="n">Ops</th><th>Resultado</th><th class="n">Tempo</th><th class="n">data.log</th></tr>
-<tr><td>1 setup</td><td>50 PUTs, 10 sobrescritas, 8 DELETEs, chave 2⁶⁴−1, valor vazio, UTF-8/emoji</td><td class="n">71</td><td>PASS</td><td class="n">0,084 s</td><td class="n">1 771 B</td></tr>
+<tr><td>1 setup</td><td>50 PUTs, 10 sobrescritas, 7 DELETEs, chave 2⁶⁴−1, valor vazio, UTF-8/emoji</td><td class="n">71</td><td>PASS</td><td class="n">0,084 s</td><td class="n">1 771 B</td></tr>
 <tr><td>2 restart</td><td>GET de todas as chaves + VERIFY</td><td class="n">54</td><td>PASS</td><td class="n">0,086 s</td><td class="n">1 771 B</td></tr>
 <tr><td>3 altera</td><td>reinsere removidas, novos DELETEs</td><td class="n">22</td><td>PASS</td><td class="n">0,074 s</td><td class="n">2 229 B</td></tr>
 <tr><td>4 confere</td><td>GET de tudo + VERIFY</td><td class="n">53</td><td>PASS</td><td class="n">0,081 s</td><td class="n">2 229 B</td></tr>
@@ -131,6 +131,12 @@ citada nas limitações.</p>
 memória virtual. Isso mostra que a solução não depende de manter o dataset em RAM. Microbenchmark
 complementar (<code>experiments/benchmark.cpp</code>): valores de 100 B → ~930 mil PUT/s e ~660 mil GET/s;
 valores de 4 KiB → ~80 mil PUT/s e ~84 mil GET/s.</p>
+<p><strong>Reprodutibilidade.</strong> Os tempos acima são de uma execução e variam com a máquina, a carga do sistema e o
+cache de disco: numa nova execução da suíte em outro momento (Intel Core i5-8265U, 8 threads, Ubuntu 26.04 no WSL2, g++ 15.2),
+o Workload 2 levou 2,44 s no setup e 1,87 s no restart, contra 6,64 s e 3,38 s na tabela. Por isso os tempos servem
+apenas como ordem de grandeza. Já os resultados são determinísticos e se repetiram exatamente: todas as respostas e o PASS
+de cada fase, o <code>data.log</code> de 122 MiB no Workload 2 e, no Workload 1, os tamanhos de 1 771 B e 2 229 B e os 91 registros
+para 40 chaves vivas.</p>
 
 <h2>5. Limitações</h2>
 <ul>
