@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 # Empacota a entrega no formato exigido pelo guia de submissão:
-#   ED2_2026_2_grupo-XX.zip contendo na raiz README.md, run.sh, src/, tests/, report.pdf
+#   ED2_2026_2_grupo-glm.zip contendo na raiz README.md, run.sh, src/, tests/, report.pdf
 #
-# Uso: GRUPO=07 bash tests/make_zip.sh
+# Uso: bash tests/make_zip.sh   (ou: make zip; GRUPO=... troca o nome do grupo)
 # Usa `git archive` (só arquivos versionados: nada de build/, data/, .vscode/...)
 # e mantém o bit executável do run.sh.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-GRUPO="${GRUPO:-XX}"
+GRUPO="${GRUPO:-glm}"
 REF="${REF:-HEAD}"   # commit a empacotar
-[ "$GRUPO" = "XX" ] && echo "aviso: defina o número do grupo, ex.: GRUPO=07 bash tests/make_zip.sh" >&2
 OUT="$ROOT/ED2_2026_2_grupo-$GRUPO.zip"
 
 for f in README.md run.sh src tests report.pdf; do

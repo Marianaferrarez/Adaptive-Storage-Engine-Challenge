@@ -9,9 +9,9 @@ VERIFY** via JSON Lines.
 
 | Nome | Matrícula |
 |------|-----------|
-| Mariana Ribeiro | 20230001113 |
+| Mariana Ferreira Ferrarez Ribeiro | 20230001113 |
 | Guilherme Ferrão | 20230024154 |
-| Lethicia Silva | 20230018021 |
+| Lethicia Rodrigues | 20230018021 |
 
 ## Linguagem, versões e dependências
 
@@ -160,5 +160,5 @@ report.pdf             relatório (2–4 páginas)
 ## Empacotamento para o Moodle
 
 ```sh
-GRUPO=07 make zip   # gera ED2_2026_2_grupo-07.zip a partir do último commit e testa o zip extraído
+make zip   # gera ED2_2026_2_grupo-glm.zip a partir do último commit e testa o zip extraído
 ```

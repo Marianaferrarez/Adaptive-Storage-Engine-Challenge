@@ -73,8 +73,8 @@ Outros arquivos no diretório de dados:
 
 ## Persistência
 
-- Cada PUT/DELETE é entregue ao kernel com `pwrite` antes de a resposta se
-  escrita, portanto sobrevive ao fim do processo (inclusive `kill -9`, ve
+- Cada PUT/DELETE é entregue ao kernel com `pwrite` antes de a resposta ser
+  escrita, portanto sobrevive ao fim do processo (inclusive `kill -9`; veja o
   teste "SIGKILL" em `tests/run_tests.sh`).
 - No encerramento normal é feito `fsync` do `data.log`.
 - Não há `fsync` por operação: medimos que isso reduz o PUT de centenas de
